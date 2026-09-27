@@ -1,0 +1,98 @@
+{% extends 'blog/base.html' %} {% block content %}
+<div class="container my-4">
+  {% if messages %}
+  <div class="row">
+    <div class="col-12">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-lg-8">
+      <h1 class="mb-2">{{post.title}} 
+        {% if post.category %}
+        <small class="text-muted fs-6">({{post.category.name}})</small>
+        {% endif %}
+      </h1>
+      <p class="text-muted">Posted on {{post.created_at|date:"F j, Y"}}</p>
+      
+      {% if post.img_url %}
+      <img src="{{post.img_url}}" class="img-fluid mb-4 rounded" alt="{{post.title}}" />
+      {% endif %}
+      
+      <p class="card-text fs-5" style="line-height: 1.8;">{{post.content}}</p>
+
+      <hr class="my-5">
+
+      <!-- Comments List -->
+      <section class="mb-5">
+        <h3 class="mb-4">Comments ({{ comments|length }})</h3>
+        {% if comments %}
+          {% for comment in comments %}
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="card-subtitle mb-0 text-primary fw-bold">{{ comment.name }}</h6>
+                <small class="text-muted">{{ comment.created_at|date:"N j, Y, P" }}</small>
+              </div>
+              <p class="card-text mb-0">{{ comment.content }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted">No comments yet. Be the first to share your thoughts!</p>
+        {% endif %}
+      </section>
+
+      <!-- Add Comment Form -->
+      <section class="card p-4 bg-light mb-5">
+        <h4 class="mb-3">Leave a Comment</h4>
+        <form method="post" action="{% url 'blog:detail' slug=post.slug %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            {{ comment_form.name }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            {{ comment_form.email }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Comment</label>
+            {{ comment_form.content }}
+          </div>
+          <button type="submit" class="btn btn-primary">Submit Comment</button>
+        </form>
+      </section>
+    </div>
+
+    <!-- Sidebar / Related Posts -->
+    <div class="col-lg-4">
+      <div class="card mt-3">
+        <div class="card-body">
+          <h5 class="card-title">Related Posts</h5>
+          {% if related_post %}
+          <ul class="list-unstyled mb-0">
+            {% for rel in related_post %}
+            <li class="mb-2">
+              <a href="{% url 'blog:detail' rel.slug %}" class="text-decoration-none fw-semibold">
+                {{rel.title}}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="text-muted small mb-0">No related posts available.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
